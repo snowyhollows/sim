@@ -15,8 +15,8 @@ import java.util.Map;
 
 public class RepresentationEntitiesCreator {
 
-    private final Map<TextureComponent, Entity> textures = new HashMap<>();
-    private final Map<TextureFragmentComponent, Entity> fragments = new HashMap<>();
+    private final Map<TextureComponent, Integer> textures = new HashMap<>();
+    private final Map<TextureFragmentComponent, Integer> fragments = new HashMap<>();
 
     @WithFactory
     public RepresentationEntitiesCreator(EngineBuilder engineBuilder) {
@@ -25,14 +25,14 @@ public class RepresentationEntitiesCreator {
 
     public Entity createOrGetRepresentation(Session session, TileMetadata tileMetadata) {
         if (tileMetadata.getRepresentation() != null) {
-            return tileMetadata.getRepresentation();
+            return session.getEntity(tileMetadata.getRepresentation());
         }
 
         TileMetadata tileByLocalId = tileMetadata.getTilesetMetadata().getTileByLocalId(tileMetadata.getLocalId());
         TextureComponent textureComponent = new TextureComponent();
         textureComponent.setTexturePath(tileByLocalId.getImagePath());
 
-        Entity texture = textures.computeIfAbsent(textureComponent, session::createEntity);
+        Entity texture = session.getEntity(textures.computeIfAbsent(textureComponent, textureComponent1 -> session.createEntity(textureComponent1).getId()));
         int cols = tileMetadata.getTilesetMetadata().getColumns();
 
         TextureFragmentComponent textureFragmentComponent = new TextureFragmentComponent();
@@ -42,8 +42,8 @@ public class RepresentationEntitiesCreator {
         textureFragmentComponent.setU((short) (tileMetadata.getLocalId() % cols * tileMetadata.getTilesetMetadata().getTileWidth()));
         textureFragmentComponent.setV((short) (tileMetadata.getLocalId() / cols * tileMetadata.getTilesetMetadata().getTileHeight()));
 
-        Entity representation = fragments.computeIfAbsent(textureFragmentComponent, session::createEntity);
+        Integer representation = fragments.computeIfAbsent(textureFragmentComponent, tfc -> session.createEntity(tfc).getId());
         tileMetadata.setRepresentation(representation);
-        return representation;
+        return session.getEntity(representation);
     }
 }

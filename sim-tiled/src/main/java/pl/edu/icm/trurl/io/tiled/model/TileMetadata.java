@@ -15,13 +15,13 @@ public class TileMetadata implements Serializable {
     private String type;
     private Map<String, String> properties;
     private List<AnimationFrameMetadata> frames = new ArrayList<>();
-    private Entity representation;
+    private Integer representation;
 
-    public Entity getRepresentation() {
+    public Integer getRepresentation() {
         return representation;
     }
 
-    public void setRepresentation(Entity representation) {
+    public void setRepresentation(Integer representation) {
         this.representation = representation;
     }
 

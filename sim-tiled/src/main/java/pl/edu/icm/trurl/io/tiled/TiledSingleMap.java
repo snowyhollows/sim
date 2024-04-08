@@ -44,7 +44,7 @@ public class TiledSingleMap {
         data.put("height", Integer.toString(tile.getTileHeight()));
         data.put("centerX", Integer.toString(x + tile.getTileWidth() / 2));
         data.put("centerY", Integer.toString(y + tile.getTileHeight() / 2));
-        data.put("representation", Integer.toString(tile.getRepresentation().getId()));
+        data.put("representation", Integer.toString(tile.getRepresentation()));
 //        data.put("representation", Integer.toString(tile.getRepresentation().getId(), 36));
         saveToStore(data, Collections.emptySet());
     }
@@ -79,7 +79,7 @@ public class TiledSingleMap {
         data.putAll(properties);
         if (tile != null) {
 //            data.put("representation", Integer.toString(tile.getRepresentation().getId(), 36));
-            data.put("representation", Integer.toString(tile.getRepresentation().getId()));
+            data.put("representation", Integer.toString(tile.getRepresentation()));
             if (tile.getType() != null) {
                 data.put("type", tile.getType());
             }
