@@ -1,0 +1,28 @@
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
+
+dependencies {
+    annotationProcessor "pl.simmundi.trurl:trurl-generator:${trurlVersion}"
+    annotationProcessor "net.snowyhollows.bento:bento-generator:${bentoVersion}"
+    implementation project(":sim-world2d")
+    implementation "net.snowyhollows.bento:bento-core:${bentoVersion}"
+    implementation "pl.simmundi.trurl:trurl-core:${trurlVersion}"
+    implementation "pl.simmundi.trurl:trurl-io:${trurlVersion}"
+    implementation "pl.simmundi.trurl:trurl-xml:${trurlVersion}"
+}
+
+publishing {
+    publications {
+        tiledPublication(MavenPublication) {
+            from components.java
+            artifact sourceJar
+
+            groupId rootProject.getGroup()
+            artifactId project.name
+            version rootProject.getVersion()
+        }
+    }
+}

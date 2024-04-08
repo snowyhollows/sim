@@ -1,0 +1,4 @@
+rootProject.name = 'sim'
+include 'sim-trurl-gdx',
+        'sim-tiled',
+        'sim-world2d'
