@@ -4,6 +4,7 @@ import net.snowyhollows.bento.annotation.WithFactory;
 import pl.edu.icm.trurl.ecs.Engine;
 import pl.edu.icm.trurl.ecs.EngineBuilder;
 import pl.edu.icm.trurl.store.IntSink;
+import pl.edu.icm.trurl.store.IntSource;
 import pl.edu.icm.trurl.world2d.model.BoundingBox;
 import pl.edu.icm.trurl.world2d.model.BoundingBoxDao;
 
@@ -22,9 +23,15 @@ public class CollisionService {
 
     public void find(BoundingBox collisionBox, IntSink sink) {
         int count = engine.getCount();
+        find(collisionBox, sink, (idx -> idx), count);
+    }
+
+    public void find(BoundingBox collisionBox, IntSink sink, IntSource source, int count) {
 
         int idx = 0;
-        for (int row = 0; row < count; row++) {
+
+        for (int x = 0; x < count; x++) {
+            int row = source.getInt(x);
             if (!boundingBoxDao.isPresent(row)) continue;
 
             float halfWidth = boundingBoxDao.getWidth(row) / 2;

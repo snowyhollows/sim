@@ -8,9 +8,11 @@ repositories {
 
 dependencies {
     annotationProcessor "pl.simmundi.trurl:trurl-generator:${trurlVersion}"
-    api "pl.simmundi.trurl:trurl-core:${trurlVersion}"
     annotationProcessor "net.snowyhollows.bento:bento-generator:${bentoVersion}"
+
+    api "pl.simmundi.trurl:trurl-core:${trurlVersion}"
     api "net.snowyhollows.bento:bento-core:${bentoVersion}"
+
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }

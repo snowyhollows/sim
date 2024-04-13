@@ -1,5 +1,5 @@
 group 'net.snowyhollows.sim'
-version '1.3-SNAPSHOT'
+version '1.4-SNAPSHOT'
 
 subprojects {
     apply plugin: 'java-library'
@@ -29,8 +29,8 @@ subprojects {
 
     ext {
         guavaVersion = '30.1-jre'
-        bentoVersion = '1.6.2'
-        trurlVersion = '1.3'
+        bentoVersion = '1.7.0'
+        trurlVersion = 'main-SNAPSHOT'
         geotoolsVersion = '26-RC'
         grasshopperVersion = '4.0'
         univocityVersion = '2.8.4'
