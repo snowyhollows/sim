@@ -15,7 +15,7 @@ import pl.edu.icm.trurl.gdx.managed.ManagedSpriteBatch;
 import pl.edu.icm.trurl.world2d.model.*;
 import pl.edu.icm.trurl.world2d.service.AnimationResolver;
 
-public class RepresentationAction<T> implements Action<T> {
+public class RepresentationAction implements Action {
     private final EngineBuilder engineBuilder;
 
     @WithFactory
@@ -52,7 +52,7 @@ public class RepresentationAction<T> implements Action<T> {
     }
 
     @Override
-    public void perform(T t, Session session, int idx) {
+    public void perform(Void t, Session session, int idx) {
         if (!hasRepresentationDao.isPresent(idx) || !boundingBoxDao.isPresent(idx)) {
             return;
         }

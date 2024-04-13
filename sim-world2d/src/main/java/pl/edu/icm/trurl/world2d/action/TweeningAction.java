@@ -10,7 +10,7 @@ import pl.edu.icm.trurl.world2d.service.GlobalTimer;
 
 import java.util.Iterator;
 
-public class TweeningAction implements Action<Void> {
+public class TweeningAction implements Action {
     private final GlobalTimer globalTimer;
     private TimelineDao timelineDao;
     private double timePassed;

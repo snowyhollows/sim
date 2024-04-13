@@ -11,6 +11,10 @@ subprojects {
         }
     }
 
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+
     task sourceJar(type: Jar) {
         from sourceSets.main.allJava
         from layout.buildDirectory.dir("generated/sources/annotationProcessor/java/main")
