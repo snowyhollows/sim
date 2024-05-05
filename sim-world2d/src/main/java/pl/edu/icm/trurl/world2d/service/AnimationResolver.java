@@ -3,9 +3,9 @@ package pl.edu.icm.trurl.world2d.service;
 import net.snowyhollows.bento.annotation.WithFactory;
 import pl.edu.icm.trurl.ecs.EngineBuilder;
 import pl.edu.icm.trurl.ecs.Entity;
-import pl.edu.icm.trurl.world2d.model.AnimationComponent;
-import pl.edu.icm.trurl.world2d.model.AnimationFrame;
-import pl.edu.icm.trurl.world2d.model.DaoOfAnimationComponentFactory;
+import pl.edu.icm.trurl.world2d.model.display.AnimationComponent;
+import pl.edu.icm.trurl.world2d.model.display.AnimationFrame;
+import pl.edu.icm.trurl.world2d.model.display.DaoOfAnimationComponentFactory;
 
 public class AnimationResolver {
     private final GlobalTimer globalTimer;
@@ -16,9 +16,8 @@ public class AnimationResolver {
         engineBuilder.addComponentWithDao(AnimationComponent.class, DaoOfAnimationComponentFactory.IT);
     }
 
-    public Entity resolveRepresentationToAnimationFrame(Entity representation) {
+    public Entity resolveRepresentationToAnimationFrame(Entity representation, float offset) {
         AnimationComponent animationComponent = representation.get(AnimationComponent.class);
-
         if (animationComponent == null || animationComponent.getFrames().isEmpty()) {
             return representation;
         }
@@ -28,7 +27,7 @@ public class AnimationResolver {
             totalDuration += frame.getDuration();
         }
 
-        float time = (float) (globalTimer.getTotalTimePassed() % totalDuration);
+        float time = (float) ((globalTimer.getTotalTimePassed() - offset) % totalDuration);
 
         for (AnimationFrame frame : animationComponent.getFrames()) {
             time -= frame.getDuration();

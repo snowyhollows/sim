@@ -9,6 +9,11 @@ import net.snowyhollows.bento.annotation.ByName;
 import net.snowyhollows.bento.annotation.WithFactory;
 
 public class ManagedBitmapFont extends BitmapFont {
+    public static final String FONT_FILE = "gdx.bitmapFont.fontFile";
+    public static final String FONT_IMAGE = "gdx.bitmapFont.fontImage";
+    public static final String FONT_FLIP = "gdx.bitmapFont.flip";
+    public static final String FONT_INTEGER = "gdx.bitmapFont.integer";
+
     public ManagedBitmapFont() {
     }
 
@@ -41,10 +46,10 @@ public class ManagedBitmapFont extends BitmapFont {
     }
 
     @WithFactory
-    public ManagedBitmapFont(@ByName(value="gdx.bitmapFont.fontFile", fallbackValue = "font.file") String fontFile,
-                             @ByName(value="gdx.bitmapFont.fontImage", fallbackValue = "font.png") String imageFile,
-                             @ByName(value="gdx.bitmapFont.flip", fallbackValue = "true") boolean flip,
-                             @ByName(value="gdx.bitmapFont.integer", fallbackValue = "true") boolean integer) {
+    public ManagedBitmapFont(@ByName(value= FONT_FILE, fallbackValue = "font.file") String fontFile,
+                             @ByName(value= FONT_IMAGE, fallbackValue = "font.png") String imageFile,
+                             @ByName(value= FONT_FLIP, fallbackValue = "true") boolean flip,
+                             @ByName(value= FONT_INTEGER, fallbackValue = "true") boolean integer) {
         super(Gdx.files.internal(fontFile), Gdx.files.internal(imageFile), flip, integer);
     }
 

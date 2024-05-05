@@ -3,18 +3,26 @@ package pl.edu.icm.trurl.gdx.service;
 import net.snowyhollows.bento.annotation.WithFactory;
 import pl.edu.icm.trurl.ecs.Entity;
 import pl.edu.icm.trurl.ecs.Session;
-import pl.edu.icm.trurl.world2d.model.BoundingBox;
-import pl.edu.icm.trurl.world2d.model.Displayable;
-import pl.edu.icm.trurl.world2d.model.GraphicsTransform;
-import pl.edu.icm.trurl.world2d.model.Named;
-import pl.edu.icm.trurl.world2d.service.NamesAndTypesService;
+import pl.edu.icm.trurl.world2d.model.*;
+import pl.edu.icm.trurl.world2d.model.display.Displayable;
+import pl.edu.icm.trurl.world2d.model.display.GraphicsTransform;
+import pl.edu.icm.trurl.world2d.model.display.TextureRegionComponent;
+import pl.edu.icm.trurl.world2d.model.space.BoundingBox;
+import pl.edu.icm.trurl.world2d.model.space.Velocity;
+import pl.edu.icm.trurl.world2d.service.AnimationResolver;
+import pl.edu.icm.trurl.world2d.service.GlobalTimer;
+import pl.edu.icm.trurl.world2d.service.NameService;
 
 public class EntityManipulators {
-    private final NamesAndTypesService namesAndTypesService;
+    private final NameService nameService;
+    private final GlobalTimer globalTimer;
+    private final AnimationResolver animationResolver;
 
     @WithFactory
-    public EntityManipulators(NamesAndTypesService namesAndTypesService) {
-        this.namesAndTypesService = namesAndTypesService;
+    public EntityManipulators(NameService nameService, GlobalTimer globalTimer, AnimationResolver animationResolver) {
+        this.nameService = nameService;
+        this.globalTimer = globalTimer;
+        this.animationResolver = animationResolver;
     }
 
     public EntityManipulator entity(Session session) {
@@ -32,12 +40,7 @@ public class EntityManipulators {
             this.entity = entity;
         }
 
-        public EntityManipulator named(String name) {
-            entity.getOrCreate(Named.class).setName(name);
-            return this;
-        }
-
-        public EntityManipulator ofType(String name) {
+        public EntityManipulator name(String name) {
             entity.getOrCreate(Named.class).setName(name);
             return this;
         }
@@ -56,26 +59,37 @@ public class EntityManipulators {
             return this;
         }
 
-        public EntityManipulator withSize(float width, float height) {
+        public EntityManipulator setVelocity(float dx, float dy) {
+            entity.getOrCreate(Velocity.class).setDx(dx);
+            entity.getOrCreate(Velocity.class).setDy(dy);
+            return this;
+        }
+
+        public EntityManipulator setSize(float width, float height) {
             BoundingBox bb = entity.getOrCreate(BoundingBox.class);
             bb.setWidth(width);
             bb.setHeight(height);
             return this;
         }
 
-        public EntityManipulator displayedAs(String representationName) {
-            Entity representation = entity.getSession().getEntity(namesAndTypesService.getId(representationName));
-            return displayedAs(representation);
+        public EntityManipulator addComponent(Object component) {
+            entity.add(component);
+            return this;
         }
 
-        public EntityManipulator displayedAs(Entity representation){
+        public EntityManipulator displayAs(String representationName) {
+            Entity representation = entity.getSession().getEntity(nameService.getId(representationName));
+            return displayAs(representation);
+        }
+
+        public EntityManipulator displayAs(Entity representation) {
             Displayable displayable = entity.getOrCreate(Displayable.class);
             displayable.setRepresentation(representation);
             return this;
         }
 
         public EntityManipulator copyPositionFrom(String name) {
-            Entity entity = this.entity.getSession().getEntity(namesAndTypesService.getId(name));
+            Entity entity = this.entity.getSession().getEntity(nameService.getId(name));
             return copyPositionFrom(entity);
         }
 
@@ -91,12 +105,12 @@ public class EntityManipulators {
             return this;
         }
 
-        public EntityManipulator copyRepresentationFrom(String name) {
-            Entity entity = this.entity.getSession().getEntity(namesAndTypesService.getId(name));
-            return copyRepresentationFrom(entity);
+        public EntityManipulator copyDisplayFrom(String name) {
+            Entity entity = this.entity.getSession().getEntity(nameService.getId(name));
+            return copyDisplayFrom(entity);
         }
 
-        public EntityManipulator copyRepresentationFrom(Entity entity) {
+        public EntityManipulator copyDisplayFrom(Entity entity) {
             Displayable displayable = entity.get(Displayable.class);
             if (displayable != null) {
                 Displayable displayable2 = this.entity.getOrCreate(Displayable.class);
@@ -105,13 +119,35 @@ public class EntityManipulators {
             return this;
         }
 
+        public EntityManipulator resetAnimation() {
+            float passed = (float) globalTimer.getTotalTimePassed();
+            getOrCreateGraphicsTransform().setAnimationOffset(passed);
+            return this;
+        }
+
         public EntityManipulator copyTransformFrom(String name) {
-            Entity entity = this.entity.getSession().getEntity(namesAndTypesService.getId(name));
+            Entity entity = this.entity.getSession().getEntity(nameService.getId(name));
             return copyTransformFrom(entity);
         }
 
+        public EntityManipulator setScale(int i) {
+            GraphicsTransform graphicsTransform = getOrCreateGraphicsTransform();
+            graphicsTransform.setScale(i);
+            return this;
+        }
+
+        public EntityManipulator setSizeFromDisplay() {
+            Displayable displayable = entity.get(Displayable.class);
+            if (displayable != null) {
+                Entity representation = animationResolver.resolveRepresentationToAnimationFrame(displayable.getRepresentation(), 0);
+                TextureRegionComponent textureRegionComponent = representation.get(TextureRegionComponent.class);
+                setSize(textureRegionComponent.getWidth(), textureRegionComponent.getHeight());
+            }
+            return this;
+        }
+
         public EntityManipulator copyTransformFrom(Entity entity) {
-            GraphicsTransform graphicsTransform = entity.get(GraphicsTransform.class);
+            GraphicsTransform graphicsTransform = entity.get(Displayable.class).getGraphicsTransform();
             if (graphicsTransform != null) {
                 GraphicsTransform graphicsTransform2 = this.entity.getOrCreate(GraphicsTransform.class);
                 graphicsTransform2.setAlpha(graphicsTransform.getAlpha());
@@ -129,9 +165,8 @@ public class EntityManipulators {
         }
 
         public EntityManipulator rotateClockwise(float da) {
-            Displayable displayable = entity.getOrCreate(Displayable.class);
-            GraphicsTransform graphicsTransform = entity.getOrCreate(GraphicsTransform.class);
-            graphicsTransform.setRotation(graphicsTransform.getRotation() + da);
+            GraphicsTransform graphicsTransform = getOrCreateGraphicsTransform();
+            graphicsTransform.setRotation(graphicsTransform.getRotation() - da);
             return this;
         }
 
@@ -149,5 +184,4 @@ public class EntityManipulators {
             return graphicsTransform;
         }
     }
-
 }

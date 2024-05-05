@@ -55,6 +55,22 @@ public class ControllerService {
             this.horizontal = dx;
             this.vertical = dy;
         }
+
+        public boolean isUp() {
+            return vertical == 1;
+        }
+
+        public boolean isDown() {
+            return vertical == -1;
+        }
+
+        public boolean isLeft() {
+            return horizontal == -1;
+        }
+
+        public boolean isRight() {
+            return horizontal == 1;
+        }
     }
 
 }

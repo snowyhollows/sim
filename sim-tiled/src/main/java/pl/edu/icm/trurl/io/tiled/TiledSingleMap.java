@@ -5,12 +5,7 @@ import pl.edu.icm.trurl.io.tiled.model.TilesetMetadata;
 import pl.edu.icm.trurl.store.Store;
 import pl.edu.icm.trurl.store.attribute.Attribute;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class TiledSingleMap {
@@ -34,18 +29,17 @@ public class TiledSingleMap {
             return;
         }
         Map<String, String> data = new HashMap<>();
-        data.putAll(tile.getProperties());
         if (tile.getType() != null) {
             data.put("type", tile.getType());
         }
-        data.put("x", Integer.toString(x));
-        data.put("y", Integer.toString(y));
-        data.put("width", Integer.toString(tile.getTileWidth()));
-        data.put("height", Integer.toString(tile.getTileHeight()));
-        data.put("centerX", Integer.toString(x + tile.getTileWidth() / 2));
-        data.put("centerY", Integer.toString(y + tile.getTileHeight() / 2));
+        data.put("x", Float.toString(x));
+        data.put("y", Float.toString(y));
+        data.put("width", Float.toString(tile.getTileWidth()));
+        data.put("height", Float.toString(tile.getTileHeight()));
+        data.put("centerX", Float.toString(x + tile.getTileWidth() / 2));
+        data.put("centerY", Float.toString(y + tile.getTileHeight() / 2));
         data.put("representation", Integer.toString(tile.getRepresentation()));
-//        data.put("representation", Integer.toString(tile.getRepresentation().getId(), 36));
+        data.putAll(tile.getProperties());
         saveToStore(data, Collections.emptySet());
     }
 
@@ -60,9 +54,11 @@ public class TiledSingleMap {
                 if (!entityAttributes.contains(key)) {
                     attribute.setString(entityId, value);
                 } else {
-                    entityReferenceWriters.add(mappings -> {
-                        attribute.setString(entityId, mappings.get(value));
-                    });
+                    if (!"0".equals(value)) {
+                        entityReferenceWriters.add(mappings -> {
+                            attribute.setString(entityId, mappings.get(value));
+                        });
+                    }
                 }
             }
 
@@ -75,22 +71,25 @@ public class TiledSingleMap {
         Map<String, String> data = new HashMap<>();
         if (tile != null) {
             data.putAll(tile.getProperties());
+            data.remove("name"); // name is not inherited, because it is used as an id of the tile
+            for (String objectProperty : objectProperties) {
+                data.remove(objectProperty);
+            }
         }
         data.putAll(properties);
         if (tile != null) {
-//            data.put("representation", Integer.toString(tile.getRepresentation().getId(), 36));
             data.put("representation", Integer.toString(tile.getRepresentation()));
             if (tile.getType() != null) {
                 data.put("type", tile.getType());
             }
         }
-        data.put("x", Integer.toString(x));
-        data.put("y", Integer.toString(y));
-        data.put("width", Integer.toString(width - 1));
-        data.put("height", Integer.toString(height - 1));
-        data.put("shape", shape.toString());
-        data.put("centerX", Integer.toString(x + width / 2));
-        data.put("centerY", Integer.toString(y + height / 2));
+        data.putIfAbsent("x", Float.toString(x));
+        data.putIfAbsent("y", Float.toString(y));
+        data.putIfAbsent("width", Float.toString(width));
+        data.putIfAbsent("height", Float.toString(height));
+        data.putIfAbsent("shape", shape.toString());
+        data.putIfAbsent("centerX", Float.toString(x + width / 2));
+        data.putIfAbsent("centerY", Float.toString(y + height / 2));
         int entityId = saveToStore(data, objectProperties);
         objectsToEntities.put(id, Integer.toString(entityId));
     }

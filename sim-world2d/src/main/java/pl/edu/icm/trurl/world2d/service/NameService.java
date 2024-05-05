@@ -7,21 +7,18 @@ import pl.edu.icm.trurl.world2d.model.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-public class NamesAndTypesService {
-    private TypedDao typedDao;
+public class NameService {
     private NamedDao namedDao;
     private ConcurrentHashMap<String, Integer> nameds = new ConcurrentHashMap<>();
 
     private EngineBuilder engineBuilder;
 
     @WithFactory
-    public NamesAndTypesService(EngineBuilder engineBuilder) {
+    public NameService(EngineBuilder engineBuilder) {
         this.engineBuilder = engineBuilder;
         this.engineBuilder.addComponentWithDao(Named.class, DaoOfNamedFactory.IT);
-        this.engineBuilder.addComponentWithDao(Typed.class, DaoOfTypedFactory.IT);
         this.engineBuilder.addListener(engine -> {
             namedDao = (NamedDao) engineBuilder.getEngine().getDaoManager().classToDao(Named.class);
-            typedDao = (TypedDao) engineBuilder.getEngine().getDaoManager().classToDao(Typed.class);
         });
     }
 
@@ -29,19 +26,19 @@ public class NamesAndTypesService {
         return hasName(entity.getId(), name);
     }
 
-    private boolean hasName(int id, String name) {
+    public boolean hasName(int id, String name) {
         return name.equals(namedDao.getName(id));
     }
 
-    public boolean hasType(Entity entity, String type) {
-        return hasType(entity.getId(), type);
+    public String getName(Entity entity) {
+        return namedDao.getName(entity.getId());
     }
 
-    private boolean hasType(int id, String type) {
-        return type.equals(typedDao.getType(id));
-    }
+     public String getName(int id) {
+        return namedDao.getName(id);
+     }
 
-    public int getId(String name) {
+    public int getId(String name, int defaultValue) {
         if (!nameds.containsKey(name)) {
             for (int i = 0; i < engineBuilder.getEngine().getCount(); i++) {
                 if (namedDao.isPresent(i)) {
@@ -54,8 +51,14 @@ public class NamesAndTypesService {
         }
 
         Integer result = nameds.get(name);
-        return result == null ? Integer.MIN_VALUE : result;
+        return result == null ? defaultValue : result;
     }
 
-
+    public int getId(String name) {
+        int result = getId(name, -Entity.NULL_ID);
+        if (result == -Entity.NULL_ID) {
+            throw new IllegalArgumentException("No entity with name " + name);
+        }
+        return result;
+    }
 }

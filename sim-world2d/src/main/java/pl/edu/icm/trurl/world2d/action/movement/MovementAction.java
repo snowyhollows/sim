@@ -1,78 +1,135 @@
 package pl.edu.icm.trurl.world2d.action.movement;
 
 import net.snowyhollows.bento.annotation.WithFactory;
-import pl.edu.icm.trurl.ecs.EngineBuilder;
-import pl.edu.icm.trurl.ecs.Entity;
-import pl.edu.icm.trurl.ecs.Session;
-import pl.edu.icm.trurl.ecs.Steps;
-import pl.edu.icm.trurl.world2d.model.*;
+import pl.edu.icm.trurl.ecs.*;
+import pl.edu.icm.trurl.ecs.index.ChunkInfo;
+import pl.edu.icm.trurl.ecs.util.Action;
+import pl.edu.icm.trurl.world2d.model.collider.Collider;
+import pl.edu.icm.trurl.world2d.model.collider.DaoOfColliderFactory;
+import pl.edu.icm.trurl.world2d.model.space.*;
 import pl.edu.icm.trurl.world2d.service.CollisionService;
 
-public class MovementAction implements Steps.TwoComponentStep<Speed, BoundingBox> {
+public class MovementAction implements Action {
     private final CollisionFilter collisionFilter;
     private final CollisionService collisionService;
+    private VelocityDao velocityDao;
+    private BoundingBoxDao boundingBoxDao;
+    private ComponentToken<Velocity> velocityToken;
 
     @WithFactory
-    public MovementAction(CollisionFilter collisionFilter, CollisionService collisionService, EngineBuilder engineBuilder) {
-        engineBuilder.addComponentWithDao(BoundingBox.class, DaoOfBoundingBoxFactory.IT);
-        engineBuilder.addComponentWithDao(Speed.class, DaoOfSpeedFactory.IT);
-        engineBuilder.addComponentWithDao(Collider.class, DaoOfColliderFactory.IT);
-        engineBuilder.addComponentWithDao(GraphicsTransform.class, DaoOfGraphicsTransformFactory.IT);
+    public MovementAction(CollisionFilter collisionFilter, CollisionService collisionService, EngineBuilder engineBuilder, EngineBuilder engineBuilder1) {
         this.collisionFilter = collisionFilter;
         this.collisionService = collisionService;
+
+        engineBuilder.addComponentWithDao(BoundingBox.class, DaoOfBoundingBoxFactory.IT);
+        engineBuilder.addComponentWithDao(Velocity.class, DaoOfVelocityFactory.IT);
+        engineBuilder.addComponentWithDao(Collider.class, DaoOfColliderFactory.IT);
+        engineBuilder.addListener(this::initEngine);
+    }
+
+    private void initEngine(Engine engine) {
+        velocityDao = (VelocityDao) engine.getDaoManager().classToDao(Velocity.class);
+        boundingBoxDao = (BoundingBoxDao) engine.getDaoManager().classToDao(BoundingBox.class);
+        velocityToken = engine.getDaoManager().classToToken(Velocity.class);
     }
 
     @Override
-    public void execute(Entity e, Speed speed, BoundingBox box) {
-        Session session = e.getSession();
+    public void init() {
+    }
 
-        if (!collisionFilter.collisionPossible(e)) {
-            box.setCenterY(box.getCenterY() + speed.getDy());
-            box.setCenterX(box.getCenterX() + speed.getDx());
+    @Override
+    public BoundingBox initPrivateContext(Session session, ChunkInfo chunkInfo) {
+        return new BoundingBox();
+    }
+
+    @Override
+    public void perform(Void unused, Session session, int idx, Object tmpObject) {
+
+        if (!velocityDao.isPresent(idx)) {
             return;
-        };
+        }
 
-        Collider collider = e.getOrCreate(Collider.class);
+        Velocity ifAvailable = session.getIfAvailable(idx, velocityToken);
+        float dx = ifAvailable == null ? velocityDao.getDx(idx) : ifAvailable.getDx();
+        float dy = ifAvailable == null ? velocityDao.getDy(idx) : ifAvailable.getDy();
 
-        if (speed.getDx() == 0 && speed.getDy() == 0) {
+        if (dx == 0 && dy == 0) {
             return;
         }
-        collider.getCollisionsV().clear();
-        collider.getCollisionsH().clear();
-        box.setCenterX(box.getCenterX() + speed.getDx());
-        float initialX = box.getCenterX();
-        collisionService.find(box, (idx, targetId) -> {
-            if (targetId == e.getId()) return;
-            Entity entity = session.getEntity(targetId);
-            if (collisionFilter.test(e, entity)) {
-                BoundingBox targetBox = entity.get(BoundingBox.class);
-                targetBox.resolveBySlide(box, speed.getDx(), 0);
-            }
-            collider.getCollisionsH().add(entity);
-        });
-        if (initialX != box.getCenterX()) {
-            speed.setDx(0);
+
+        Entity movingEntity = session.getEntity(idx);
+        BoundingBox box = movingEntity.get(BoundingBox.class);
+
+        if (!collisionFilter.test(idx)) {
+            box.setCenterY(box.getCenterY() + dx);
+            box.setCenterX(box.getCenterX() + dy);
+            return;
         }
 
-        box.setCenterY(box.getCenterY() + speed.getDy());
-        float initialY = box.getCenterY();
-        collisionService.find(box, (idx, targetId) -> {
-            if (targetId == e.getId()) return;
-            Entity entity = session.getEntity(targetId);
-            if (collisionFilter.test(e, entity)) {
-                BoundingBox targetBox = entity.get(BoundingBox.class);
-                targetBox.resolveBySlide(box, 0, speed.getDy());
-            }
-            collider.getCollisionsV().add(entity);
-        });
-        if (initialY != box.getCenterY()) {
-            speed.setDy(0);
+
+        Collider collider = movingEntity.get(Collider.class);
+
+        if (collider != null) {
+            collider.setDx(dx);
+            collider.setDy(dy);
+            collider.reset();
         }
 
-        GraphicsTransform transform = e.get(GraphicsTransform.class);
+        BoundingBox tmp = (BoundingBox) tmpObject;
 
-        if (transform != null && speed.getDx() != 0) {
-            transform.setHorizontalFlip(speed.getDx() < 0);
+        if (dx != 0) {
+            box.moveX(dx);
+
+            collisionService.find(box, (ix, targetId) -> {
+                if (targetId == movingEntity.getId()) return;
+
+                CollisionFilter.CollisionType collisionType = collisionFilter.testPerTarget(idx, targetId);
+
+                if (collider != null) {
+                    collider.setDx(dx);
+                    collider.setDy(dy);
+                    if (collisionType.remembers) {
+                        collider.horizontalCollisionWith(session.getEntity(targetId));
+                    }
+                }
+
+                if (collisionType.stops) {
+                    movingEntity.get(velocityToken).setDx(0);
+                    boundingBoxDao.load(session, tmp, targetId);
+                    float overlap = box.overlapX(tmp);
+                    box.moveX(overlap * -Math.signum(dx));
+                }
+            });
         }
+
+        if (dy != 0) {
+            box.moveY(dy);
+
+            collisionService.find(box, (ix, targetId) -> {
+
+                if (targetId == movingEntity.getId()) return;
+                CollisionFilter.CollisionType collisionType = collisionFilter.testPerTarget(idx, targetId);
+
+                if (collider != null) {
+                    collider.setDx(dx);
+                    collider.setDy(dy);
+                    if (collisionType.remembers) {
+                        collider.verticalCollisionWith(session.getEntity(targetId));
+                    }
+                }
+
+                if (collisionType.stops) {
+                    movingEntity.get(velocityToken).setDy(0);
+                    boundingBoxDao.load(session, tmp, targetId);
+                    float overlap = box.overlapY(tmp);
+                    box.moveY(overlap * -Math.signum(dy));
+                }
+            });
+        }
+    }
+
+    @Override
+    public void perform(Void unused, Session session, int idx) {
+        throw new IllegalStateException("xxx");
     }
 }

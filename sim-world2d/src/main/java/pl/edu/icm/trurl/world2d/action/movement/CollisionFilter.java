@@ -1,13 +1,26 @@
 package pl.edu.icm.trurl.world2d.action.movement;
 
 import net.snowyhollows.bento.annotation.ImplementationSwitch;
-import pl.edu.icm.trurl.ecs.Entity;
 
 @ImplementationSwitch(configKey = "trurl.world2d.movement.collisionFilter", cases = {
-        @ImplementationSwitch.When(name = "everything", implementation = EverythingObstructsFilter.class, useByDefault = true)
+        @ImplementationSwitch.When(name = "everything", implementation = DefaultFilter.class, useByDefault = true)
 })
 public interface CollisionFilter {
-    boolean test(Entity a, Entity b);
+    CollisionType testPerTarget(int movingId, int targetId);
+    boolean test(int movingId);
 
-    boolean collisionPossible(Entity a);
+    enum CollisionType {
+        HARD(true, true),
+        SOFT(false, true),
+        SIMPLE(true, false),
+        NONE(false, false);
+
+        public final boolean stops;
+        public final boolean remembers;
+
+        CollisionType(boolean stops, boolean remembers) {
+            this.stops = stops;
+            this.remembers = remembers;
+        }
+    }
 }

@@ -1,9 +1,3 @@
-## general
-
-Move to github and use jitpack.io for dependencies.
-Remove "visitor" from everywhere
-Make just any release, to stabilize things for some games.
-
 ## world2d
 
 - add cap (also vertical and horizontal cap separately) to `Speed`.
@@ -18,19 +12,15 @@ Make just any release, to stabilize things for some games.
 - namesAndTypesService: getName, getType
 - move entity manipulator to world2d
 - add resetAnimation to entityManipulator
-- collider should remember the dx, dy before the collision
 - remove type from the standard components
 - rename NameAndTypeService to NameService or something
 - rewrite entitymanipulator
 - CollisionService should have utility methods for bounding boxes - like "isIntersecting", but also simpler: getWidth(idx), getBoundingBoxCopy(idx)
 - GlobalTimer should produce Timer instances with the given duration
 - entitymanipulator copies transform wrong way (not from the displayable)
+- collider should remember the dx, dy before the collision
 
 ## tiled
-- (?) add inheritance of layer properties to layer objects
-- change `data.put("width", Integer.toString(width - 1))` to `putIfAbsent` in `TiledSingleMap`
-- remove special casing of tile.name and tile.type - replace with full support for properties (except for object references)
-- remove trimming object sizes (-1), make widths, heights and positions floats (instead of integers)
 - handle horizontal and vertical flipping
 
 # direction service
@@ -43,4 +33,3 @@ Make just any release, to stabilize things for some games.
 - switch width/height in formulas in RepresentationAction (fixes a bug)
 - add a way to reset animation to the first frame
 - pack flags in graphicsTransform to a single byte (the flips)
-

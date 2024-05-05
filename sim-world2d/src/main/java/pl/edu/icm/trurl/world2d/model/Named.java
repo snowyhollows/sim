@@ -6,6 +6,13 @@ import pl.edu.icm.trurl.ecs.dao.annotation.WithDao;
 public class Named {
     private String name;
 
+    public Named() {
+    }
+
+    public Named(String name) {
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }

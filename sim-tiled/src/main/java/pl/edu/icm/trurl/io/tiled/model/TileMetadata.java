@@ -1,8 +1,5 @@
 package pl.edu.icm.trurl.io.tiled.model;
 
-import pl.edu.icm.trurl.ecs.Entity;
-import pl.edu.icm.trurl.world2d.model.AnimationFrame;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;

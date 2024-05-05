@@ -34,7 +34,6 @@ class TsxServiceTest {
     @Test
     void test() throws XMLStreamException, IOException {
         // given
-//        System.out.println(new File("example").getAbsolutePath());
 //        when(xmlLoader.load(anyString())).thenReturn(XMLInputFactory.newFactory().createXMLEventReader(new FileReader("examples/basictiles.tsx")));
 //        TsxService tsxService = new TsxService(xmlLoader, representationEntitiesCreator, engineBuilder);
 //        Mockito.when(representationEntitiesCreator.createOrGetRepresentation(tileMetadataArgumentCaptor.capture())).thenReturn(null);

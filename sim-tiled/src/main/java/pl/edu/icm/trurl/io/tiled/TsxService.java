@@ -8,10 +8,10 @@ import pl.edu.icm.trurl.io.tiled.model.AnimationFrameMetadata;
 import pl.edu.icm.trurl.io.tiled.model.TileMetadata;
 import pl.edu.icm.trurl.io.tiled.model.TilesetMetadata;
 import pl.edu.icm.trurl.io.tiled.parser.TsxParser;
-import pl.edu.icm.trurl.world2d.model.AnimationComponent;
-import pl.edu.icm.trurl.world2d.model.AnimationFrame;
-import pl.edu.icm.trurl.world2d.model.Named;
-import pl.edu.icm.trurl.world2d.model.Typed;
+import pl.edu.icm.trurl.store.Store;
+import pl.edu.icm.trurl.store.attribute.Attribute;
+import pl.edu.icm.trurl.world2d.model.display.AnimationComponent;
+import pl.edu.icm.trurl.world2d.model.display.AnimationFrame;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.FileNotFoundException;
@@ -68,13 +68,17 @@ public class TsxService {
     }
 
     private static void assignTileNameAndType(TilesetMetadata loaded, int i, Entity created) {
-        String tileName = loaded.getTileByLocalId(i).getProperties().get("tile.name");
-        if (tileName != null) {
-            created.getOrCreate(Named.class).setName(tileName);
-        }
-        String tileType = loaded.getTileByLocalId(i).getProperties().get("tile.type");
-        if (tileType != null) {
-            created.getOrCreate(Typed.class).setType(tileType);
+        Map<String, String> properties = loaded.getTileByLocalId(i).getProperties();
+        Store store = created.getSession().getEngine().getRootStore();
+        int entityId = created.getId();
+        for (Map.Entry<String, String> stringStringEntry : properties.entrySet()) {
+            String key = stringStringEntry.getKey();
+            String value = stringStringEntry.getValue();
+            Attribute attribute = store.get(key);
+            if (attribute != null) {
+                // there are no "object references" in tiles, so we can safely set the value
+                attribute.setString(entityId, value);
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-package pl.edu.icm.trurl.world2d.model;
+package pl.edu.icm.trurl.world2d.model.display;
 
 import pl.edu.icm.trurl.ecs.dao.annotation.WithDao;
 

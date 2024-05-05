@@ -10,7 +10,6 @@ dependencies {
     compileOnly "net.snowyhollows.bento:bento-core:${bentoVersion}"
     compileOnly "com.badlogicgames.gdx:gdx:${gdxVersion}"
     api project(":sim-world2d")
-    implementation "pl.simmundi.trurl:trurl-generator:${trurlVersion}"
     implementation "pl.simmundi.trurl:trurl-core:${trurlVersion}"
 }
 

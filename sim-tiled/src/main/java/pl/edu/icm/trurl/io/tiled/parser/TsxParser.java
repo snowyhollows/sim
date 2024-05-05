@@ -48,7 +48,10 @@ public class TsxParser extends Parser {
                                     forEach(valueOf("property"), () -> {
                                         String name = getAttribValue(valueOf("name"));
                                         String value = getAttribValue(valueOf("value"));
-                                        tile.putProperty(name, value);
+                                        String propType = getAttribValue(valueOf("type"));
+                                        if (!"object".equals(propType)) {
+                                            tile.putProperty(name, value);
+                                        }
                                     });
                                 }),
                                 caseIf(valueOf("animation"), () -> {

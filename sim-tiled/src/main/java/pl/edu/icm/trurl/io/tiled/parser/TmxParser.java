@@ -118,6 +118,9 @@ public class TmxParser extends Parser {
                                             }
                                         });
                                     }),
+                                    caseIf(valueOf("text"), () -> {
+                                        properties.put("text", getElementTrimmedStringValue());
+                                    }),
                                     caseIf(valueOf("ellipse"), () -> {
                                         shape.set(TiledSingleMap.Shape.ELLIPSE);
                                     }),

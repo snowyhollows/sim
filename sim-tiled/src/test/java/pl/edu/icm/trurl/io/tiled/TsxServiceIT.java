@@ -16,9 +16,9 @@ class TsxServiceIT {
     Bento bento = Bento.createRoot();
 
     @Test
-    void test() throws XMLStreamException, FileNotFoundException {
+    void test() {
+        bento.register("tmxDir", "src/test/resources");
         TsxService tsxService = bento.get(TsxServiceFactory.IT);
-        tsxService.load("examples/basictiles.tsx");
-        bento.get(DebugStoreServiceFactory.IT).systemOutPrintStore();
+        tsxService.load("basictiles.tsx");
     }
 }

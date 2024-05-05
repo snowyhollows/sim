@@ -5,8 +5,8 @@ import pl.edu.icm.trurl.ecs.Engine;
 import pl.edu.icm.trurl.ecs.EngineBuilder;
 import pl.edu.icm.trurl.store.IntSink;
 import pl.edu.icm.trurl.store.IntSource;
-import pl.edu.icm.trurl.world2d.model.BoundingBox;
-import pl.edu.icm.trurl.world2d.model.BoundingBoxDao;
+import pl.edu.icm.trurl.world2d.model.space.BoundingBox;
+import pl.edu.icm.trurl.world2d.model.space.BoundingBoxDao;
 
 public class CollisionService {
 
@@ -39,7 +39,7 @@ public class CollisionService {
             float centerX = boundingBoxDao.getCenterX(row);
             float centerY = boundingBoxDao.getCenterY(row);
 
-            if (collisionBox.overlaps(centerX - halfWidth, centerX + halfWidth, centerY - halfHeight, centerY + halfHeight)) {
+            if (collisionBox.overlapsMinMax(centerX - halfWidth, centerX + halfWidth, centerY - halfHeight, centerY + halfHeight)) {
                 sink.setInt(idx++, row);
             }
         }
