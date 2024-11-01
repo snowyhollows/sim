@@ -9,6 +9,7 @@ import pl.edu.icm.trurl.io.tiled.TmxService;
 import pl.edu.icm.trurl.io.tiled.TmxServiceFactory;
 import pl.edu.icm.trurl.world2d.model.*;
 
+import java.io.File;
 import java.io.IOException;
 
 public class TiledMapToCsv {
@@ -19,6 +20,7 @@ public class TiledMapToCsv {
 
     public static void process(String tmxDir, String inTmxFile, String outCsvFile, Class... componentClasses) {
         Bento root = Bento.createRoot();
+        String baseName = new File(inTmxFile).getName();
 
         Bento justLoader = root.create();
         justLoader.register("tmxDir", tmxDir);
@@ -29,7 +31,7 @@ public class TiledMapToCsv {
         engineBuilder.addComponentClasses(componentClasses);
         tmxService.loadTmx(inTmxFile);
         try {
-            storeIO.writeStoreToFiles(outCsvFile + ".properties", outCsvFile, engineBuilder.getEngine().getRootStore(), "csv");
+            storeIO.writeStoreToFiles(outCsvFile + ".properties", baseName, engineBuilder.getEngine().getRootStore(), "csv");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
