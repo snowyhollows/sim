@@ -60,7 +60,7 @@ public class MovementAction implements Action {
         Entity movingEntity = session.getEntity(idx);
         BoundingBox box = movingEntity.get(BoundingBox.class);
 
-        if (!collisionFilter.test(idx)) {
+        if (!collisionFilter.test(session, idx)) {
             box.setCenterY(box.getCenterY() + dx);
             box.setCenterX(box.getCenterX() + dy);
             return;
@@ -83,17 +83,17 @@ public class MovementAction implements Action {
             collisionService.find(box, (ix, targetId) -> {
                 if (targetId == movingEntity.getId()) return;
 
-                CollisionFilter.CollisionType collisionType = collisionFilter.testPerTarget(idx, targetId);
+                CollisionFilter.CollisionResponse collisionResponse = collisionFilter.testPerTarget(session, idx, targetId);
 
                 if (collider != null) {
                     collider.setDx(dx);
                     collider.setDy(dy);
-                    if (collisionType.remembers) {
+                    if (collisionResponse.remembers) {
                         collider.horizontalCollisionWith(session.getEntity(targetId));
                     }
                 }
 
-                if (collisionType.stops) {
+                if (collisionResponse.stops) {
                     movingEntity.get(velocityToken).setDx(0);
                     boundingBoxDao.load(session, tmp, targetId);
                     float overlap = box.overlapX(tmp);
@@ -108,17 +108,17 @@ public class MovementAction implements Action {
             collisionService.find(box, (ix, targetId) -> {
 
                 if (targetId == movingEntity.getId()) return;
-                CollisionFilter.CollisionType collisionType = collisionFilter.testPerTarget(idx, targetId);
+                CollisionFilter.CollisionResponse collisionResponse = collisionFilter.testPerTarget(session, idx, targetId);
 
                 if (collider != null) {
                     collider.setDx(dx);
                     collider.setDy(dy);
-                    if (collisionType.remembers) {
+                    if (collisionResponse.remembers) {
                         collider.verticalCollisionWith(session.getEntity(targetId));
                     }
                 }
 
-                if (collisionType.stops) {
+                if (collisionResponse.stops) {
                     movingEntity.get(velocityToken).setDy(0);
                     boundingBoxDao.load(session, tmp, targetId);
                     float overlap = box.overlapY(tmp);

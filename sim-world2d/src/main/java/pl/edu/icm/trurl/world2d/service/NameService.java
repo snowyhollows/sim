@@ -3,7 +3,9 @@ package pl.edu.icm.trurl.world2d.service;
 import net.snowyhollows.bento.annotation.WithFactory;
 import pl.edu.icm.trurl.ecs.EngineBuilder;
 import pl.edu.icm.trurl.ecs.Entity;
-import pl.edu.icm.trurl.world2d.model.*;
+import pl.edu.icm.trurl.world2d.model.DaoOfNamedFactory;
+import pl.edu.icm.trurl.world2d.model.Named;
+import pl.edu.icm.trurl.world2d.model.NamedDao;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,9 +36,9 @@ public class NameService {
         return namedDao.getName(entity.getId());
     }
 
-     public String getName(int id) {
+    public String getName(int id) {
         return namedDao.getName(id);
-     }
+    }
 
     public int getId(String name, int defaultValue) {
         if (!nameds.containsKey(name)) {

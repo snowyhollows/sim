@@ -1,6 +1,7 @@
 package pl.edu.icm.trurl.gdx.service;
 
 import net.snowyhollows.bento.annotation.WithFactory;
+import pl.edu.icm.trurl.ecs.EngineBuilder;
 import pl.edu.icm.trurl.ecs.Entity;
 import pl.edu.icm.trurl.ecs.Session;
 import pl.edu.icm.trurl.world2d.model.*;
@@ -13,23 +14,33 @@ import pl.edu.icm.trurl.world2d.service.AnimationResolver;
 import pl.edu.icm.trurl.world2d.service.GlobalTimer;
 import pl.edu.icm.trurl.world2d.service.NameService;
 
-public class EntityManipulators {
+import java.util.concurrent.atomic.AtomicReference;
+
+public class SimEntitiesService {
     private final NameService nameService;
     private final GlobalTimer globalTimer;
     private final AnimationResolver animationResolver;
+    private final EngineBuilder engineBuilder;
 
     @WithFactory
-    public EntityManipulators(NameService nameService, GlobalTimer globalTimer, AnimationResolver animationResolver) {
+    public SimEntitiesService(NameService nameService, GlobalTimer globalTimer, AnimationResolver animationResolver, EngineBuilder engineBuilder) {
         this.nameService = nameService;
         this.globalTimer = globalTimer;
         this.animationResolver = animationResolver;
+        this.engineBuilder = engineBuilder;
     }
 
-    public EntityManipulator entity(Session session) {
-        return new EntityManipulator(session.createEntity());
+    private Session session() {
+        AtomicReference<Session> sessionRef = new AtomicReference<>();
+        engineBuilder.getEngine().execute(sf -> sessionRef.set(sf.createOrGet()));
+        return sessionRef.get();
     }
 
-    public EntityManipulator entity(Entity entity) {
+    public EntityManipulator usingNewEntity() {
+        return new EntityManipulator(session().createEntity());
+    }
+
+    public EntityManipulator using(Entity entity) {
         return new EntityManipulator(entity);
     }
 
@@ -65,7 +76,7 @@ public class EntityManipulators {
             return this;
         }
 
-        public EntityManipulator setSize(float width, float height) {
+        public EntityManipulator setBounds(float width, float height) {
             BoundingBox bb = entity.getOrCreate(BoundingBox.class);
             bb.setWidth(width);
             bb.setHeight(height);
@@ -88,12 +99,12 @@ public class EntityManipulators {
             return this;
         }
 
-        public EntityManipulator copyPositionFrom(String name) {
+        public EntityManipulator copyBoundsAndPositionFrom(String name) {
             Entity entity = this.entity.getSession().getEntity(nameService.getId(name));
-            return copyPositionFrom(entity);
+            return copyBoundsAndPositionFrom(entity);
         }
 
-        public EntityManipulator copyPositionFrom(Entity entity) {
+        public EntityManipulator copyBoundsAndPositionFrom(Entity entity) {
             BoundingBox bb = entity.get(BoundingBox.class);
             if (bb != null) {
                 BoundingBox bb2 = this.entity.getOrCreate(BoundingBox.class);
@@ -141,7 +152,7 @@ public class EntityManipulators {
             if (displayable != null) {
                 Entity representation = animationResolver.resolveRepresentationToAnimationFrame(displayable.getRepresentation(), 0);
                 TextureRegionComponent textureRegionComponent = representation.get(TextureRegionComponent.class);
-                setSize(textureRegionComponent.getWidth(), textureRegionComponent.getHeight());
+                setBounds(textureRegionComponent.getWidth(), textureRegionComponent.getHeight());
             }
             return this;
         }

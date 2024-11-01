@@ -2,6 +2,7 @@ package pl.edu.icm.trurl.world2d.action.movement;
 
 import net.snowyhollows.bento.annotation.WithFactory;
 import pl.edu.icm.trurl.ecs.EngineBuilder;
+import pl.edu.icm.trurl.ecs.Session;
 import pl.edu.icm.trurl.world2d.model.space.Velocity;
 import pl.edu.icm.trurl.world2d.model.space.VelocityDao;
 
@@ -16,12 +17,12 @@ public class DefaultFilter implements CollisionFilter {
     }
 
     @Override
-    public CollisionType testPerTarget(int movingId, int targetId) {
-        return CollisionType.HARD;
+    public CollisionResponse testPerTarget(Session session, int movingId, int targetId) {
+        return CollisionResponse.HARD;
     }
 
     @Override
-    public boolean test(int movingId) {
+    public boolean test(Session session, int movingId) {
         return true;
     }
 }

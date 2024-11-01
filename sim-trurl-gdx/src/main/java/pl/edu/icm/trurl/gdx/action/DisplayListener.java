@@ -7,5 +7,12 @@ import net.snowyhollows.bento.annotation.ImplementationSwitch.When;
         @When(name = "default", implementation = DefaultDisplayListener.class, useByDefault = true)
 })
 public interface DisplayListener {
-    void onRepresentationDrawn(int idx, float centerX, float centerY, float drawWidth, float drawHeight, float rotation, float scale, float alpha);
+    void onRepresentationDrawn(int idx,
+                               float centerX,
+                               float centerY,
+                               float drawWidth,
+                               float drawHeight,
+                               float rotation,
+                               float scale,
+                               float alpha);
 }
