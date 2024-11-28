@@ -13,7 +13,7 @@ import pl.edu.icm.trurl.gdx.managed.ManagedShapeRenderer;
 import pl.edu.icm.trurl.world2d.model.space.BoundingBox;
 import pl.edu.icm.trurl.world2d.model.space.BoundingBoxDao;
 
-public class DebugGeometryAction implements Action {
+public class DebugGeometryAction implements Action<Void> {
 
     private final ShapeRenderer shapeRenderer;
     private final Camera camera;
@@ -31,10 +31,10 @@ public class DebugGeometryAction implements Action {
     }
 
     @Override
-    public ShapeRenderer initPrivateContext(Session session, ChunkInfo chunkInfo) {
+    public Void startChunk(Session session, ChunkInfo chunkInfo) {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setProjectionMatrix(camera.combined);
-        return shapeRenderer;
+        return null;
     }
 
     @Override
@@ -51,8 +51,4 @@ public class DebugGeometryAction implements Action {
         shapeRenderer.rect(x - w / 2, y - h / 2, w, h);
     }
 
-    @Override
-    public void closePrivateContext(Object context) {
-        shapeRenderer.end();
-    }
 }

@@ -2,6 +2,8 @@ package pl.edu.icm.trurl.world2d.model.space;
 
 import pl.edu.icm.trurl.ecs.dao.annotation.WithDao;
 
+import java.util.Objects;
+
 import static java.lang.Math.signum;
 
 @WithDao
@@ -114,4 +116,16 @@ public class BoundingBox {
         return (centerX + width / 2 > minX && centerX - width / 2 < maxX && centerY + height / 2 > minY && centerY - height / 2 < maxY);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BoundingBox that = (BoundingBox) o;
+        return Float.compare(centerX, that.centerX) == 0 && Float.compare(centerY, that.centerY) == 0 && Float.compare(width, that.width) == 0 && Float.compare(height, that.height) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(centerX, centerY, width, height);
+    }
 }

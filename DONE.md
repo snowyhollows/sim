@@ -1,8 +1,10 @@
 ## general
 
-Move to github and use jitpack.io for dependencies.
-Remove "visitor" from everywhere
-Make just any release, to stabilize things for some games.
+- Move to github and use jitpack.io for dependencies.
+- Remove "visitor" from everywhere
+- Make just any release, to stabilize things for some games.
+- add cap (also vertical and horizontal cap separately) to `Speed`.
+- change the name of `Speed` to `Velocity`.
 
 ## tiled:
 - (?) add inheritance of layer properties to layer objects

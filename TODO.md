@@ -1,7 +1,5 @@
 ## world2d
 
-- add cap (also vertical and horizontal cap separately) to `Speed`.
-- change the name of `Speed` to `Velocity`.
 - movement action is not an action - this is confusing.
 - CollisionFilter should have a raw version that gets ids as the parameters, not whole entities.
 - Think about collision which do not stop anyone (like - a player picking up a power-up)

@@ -9,7 +9,7 @@ import pl.edu.icm.trurl.world2d.model.collider.DaoOfColliderFactory;
 import pl.edu.icm.trurl.world2d.model.space.*;
 import pl.edu.icm.trurl.world2d.service.CollisionService;
 
-public class MovementAction implements Action {
+public class MovementAction implements Action<BoundingBox> {
     private final CollisionFilter collisionFilter;
     private final CollisionService collisionService;
     private VelocityDao velocityDao;
@@ -34,16 +34,12 @@ public class MovementAction implements Action {
     }
 
     @Override
-    public void init() {
-    }
-
-    @Override
-    public BoundingBox initPrivateContext(Session session, ChunkInfo chunkInfo) {
+    public BoundingBox startChunk(Session session, ChunkInfo chunkInfo) {
         return new BoundingBox();
     }
 
     @Override
-    public void perform(Void unused, Session session, int idx, Object tmpObject) {
+    public void perform(BoundingBox tmpObject, Session session, int idx) {
 
         if (!velocityDao.isPresent(idx)) {
             return;
@@ -75,7 +71,8 @@ public class MovementAction implements Action {
             collider.reset();
         }
 
-        BoundingBox tmp = (BoundingBox) tmpObject;
+        // TODO
+        BoundingBox tmp = tmpObject;
 
         if (dx != 0) {
             box.moveX(dx);
@@ -126,10 +123,5 @@ public class MovementAction implements Action {
                 }
             });
         }
-    }
-
-    @Override
-    public void perform(Void unused, Session session, int idx) {
-        throw new IllegalStateException("xxx");
     }
 }

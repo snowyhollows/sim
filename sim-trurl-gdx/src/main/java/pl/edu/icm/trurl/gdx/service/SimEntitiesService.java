@@ -31,9 +31,7 @@ public class SimEntitiesService {
     }
 
     private Session session() {
-        AtomicReference<Session> sessionRef = new AtomicReference<>();
-        engineBuilder.getEngine().execute(sf -> sessionRef.set(sf.createOrGet()));
-        return sessionRef.get();
+        return engineBuilder.getEngine().getSession();
     }
 
     public EntityManipulator usingNewEntity() {

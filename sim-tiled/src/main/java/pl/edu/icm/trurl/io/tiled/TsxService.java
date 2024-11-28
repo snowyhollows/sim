@@ -40,27 +40,25 @@ public class TsxService {
         try {
             TilesetMetadata loaded = new TsxParser(xmlLoader.load(path), path).load();
 
-            engineBuilder.getEngine().execute(sessionFactory -> {
-                Session session = sessionFactory.createOrGet();
-                for (int i = 0; i < loaded.getTileCount(); i++) {
-                    Entity created = gdxEntitiesCreator.createOrGetRepresentation(session, loaded.getTileByLocalId(i));
-                    assignTileNameAndType(loaded, i, created);
-                }
-                for (int i = 0; i < loaded.getTileCount(); i++) {
-                    TileMetadata tile = loaded.getTileByLocalId(i);
-                    if (tile.getAnimationFrames().size() > 0) {
-                        Entity representation = gdxEntitiesCreator.createOrGetRepresentation(session, tile);
-                        assignTileNameAndType(loaded, i, representation);
-                        AnimationComponent animationComponent = representation.getOrCreate(AnimationComponent.class);
+            Session session = engineBuilder.getEngine().getSession();
+            for (int i = 0; i < loaded.getTileCount(); i++) {
+                Entity created = gdxEntitiesCreator.createOrGetRepresentation(session, loaded.getTileByLocalId(i));
+                assignTileNameAndType(loaded, i, created);
+            }
+            for (int i = 0; i < loaded.getTileCount(); i++) {
+                TileMetadata tile = loaded.getTileByLocalId(i);
+                if (tile.getAnimationFrames().size() > 0) {
+                    Entity representation = gdxEntitiesCreator.createOrGetRepresentation(session, tile);
+                    assignTileNameAndType(loaded, i, representation);
+                    AnimationComponent animationComponent = representation.getOrCreate(AnimationComponent.class);
 
-                        for (AnimationFrameMetadata animationFrame : tile.getAnimationFrames()) {
-                            Entity target = gdxEntitiesCreator.createOrGetRepresentation(session, loaded.getTileByLocalId(animationFrame.getLocalId()));
-                            animationComponent.getFrames().add(AnimationFrame.of(target, animationFrame.getDuration()));
-                        }
+                    for (AnimationFrameMetadata animationFrame : tile.getAnimationFrames()) {
+                        Entity target = gdxEntitiesCreator.createOrGetRepresentation(session, loaded.getTileByLocalId(animationFrame.getLocalId()));
+                        animationComponent.getFrames().add(AnimationFrame.of(target, animationFrame.getDuration()));
                     }
                 }
-                session.close();
-            });
+            }
+            session.close();
             return loaded;
         } catch (XMLStreamException | FileNotFoundException e) {
             throw new IllegalArgumentException(e);

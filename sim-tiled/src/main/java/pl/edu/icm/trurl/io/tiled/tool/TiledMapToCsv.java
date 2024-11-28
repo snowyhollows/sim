@@ -7,7 +7,6 @@ import pl.edu.icm.trurl.io.store.StoreIO;
 import pl.edu.icm.trurl.io.store.StoreIOFactory;
 import pl.edu.icm.trurl.io.tiled.TmxService;
 import pl.edu.icm.trurl.io.tiled.TmxServiceFactory;
-import pl.edu.icm.trurl.world2d.model.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +16,8 @@ public class TiledMapToCsv {
     public static void process(String inTmxFile, String outCsvFile, Class... componentClasses) {
         process(".", inTmxFile, outCsvFile, componentClasses);
     }
+
+
 
     public static void process(String tmxDir, String inTmxFile, String outCsvFile, Class... componentClasses) {
         Bento root = Bento.createRoot();

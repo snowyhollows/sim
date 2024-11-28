@@ -15,7 +15,7 @@ import pl.edu.icm.trurl.world2d.model.space.BoundingBoxDao;
 import pl.edu.icm.trurl.world2d.model.space.DaoOfBoundingBoxFactory;
 import pl.edu.icm.trurl.world2d.service.AnimationResolver;
 
-public class RenderingAction implements Action {
+public class RenderingAction implements Action<Void> {
     private final EngineBuilder engineBuilder;
     private final AnimationResolver animationResolver;
     private final GdxTileTextureLoader textureLoader;
@@ -25,11 +25,6 @@ public class RenderingAction implements Action {
     BoundingBoxDao boundingBoxDao;
     DisplayableDao displayableDao;
     GraphicsTransformDao graphicsTransformDao;
-
-    @Override
-    public void closePrivateContext(Object context) {
-        renderer.render();
-    }
 
     @WithFactory
     public RenderingAction(AnimationResolver animationResolver,
@@ -55,9 +50,9 @@ public class RenderingAction implements Action {
     }
 
     @Override
-    public <T> T initPrivateContext(Session session, ChunkInfo chunkInfo) {
+    public void endIteration() {
+        renderer.render();
         renderer.clear();
-        return null;
     }
 
     @Override

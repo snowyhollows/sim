@@ -1,7 +1,6 @@
 package pl.edu.icm.trurl.world2d.service;
 
 import pl.edu.icm.trurl.ecs.*;
-import pl.edu.icm.trurl.ecs.index.ChunkInfo;
 import pl.edu.icm.trurl.ecs.util.Action;
 import pl.edu.icm.trurl.world2d.model.state.DaoOfStateMachineFactory;
 import pl.edu.icm.trurl.world2d.model.state.StateMachine;
@@ -9,7 +8,7 @@ import pl.edu.icm.trurl.world2d.model.state.StateMachineDao;
 
 import java.util.Arrays;
 
-public abstract class StateMachineService<StateT extends Enum<StateT>, EventT extends Enum<EventT>> implements Action {
+public abstract class StateMachineService<StateT extends Enum<StateT>, EventT extends Enum<EventT>> implements Action<Void> {
 
     private final GlobalTimer globalTimer;
     private final float[] durations;
@@ -45,13 +44,12 @@ public abstract class StateMachineService<StateT extends Enum<StateT>, EventT ex
 
     private float currentTime;
 
-    @Override
-    public final <T> T initPrivateContext(Session session, ChunkInfo chunkInfo) {
+    public void startIteration() {
         currentTime = (float) globalTimer.getTotalTimePassed();
-        return null;
     }
 
-    private void init(Engine engine) {
+    @Override
+    public void init(Engine engine) {
         stateMachineDao = (StateMachineDao) engine.getDaoManager().classToDao(StateMachine.class);
         // TODO: these tokens should also be in the dao, shouldn't they?
         stateToken = engine.getDaoManager().classToToken(StateMachine.class);

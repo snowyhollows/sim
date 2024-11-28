@@ -10,7 +10,8 @@ import pl.edu.icm.trurl.world2d.service.GlobalTimer;
 
 import java.util.Iterator;
 
-public class TweeningAction implements Action {
+public class TweeningAction implements Action<Void> {
+
     private final GlobalTimer globalTimer;
     private TimelineDao timelineDao;
     private double timePassed;
@@ -19,6 +20,7 @@ public class TweeningAction implements Action {
     @WithFactory
     public TweeningAction(EngineBuilder engineBuilder, GlobalTimer globalTimer) {
         this.globalTimer = globalTimer;
+        // TODO
         engineBuilder.addComponentWithDao(Timeline.class, DaoOfTimelineFactory.IT);
         engineBuilder.addListener(engine -> {
             timelineDao = (TimelineDao) engine.getDaoManager().classToDao(Timeline.class);
@@ -87,8 +89,10 @@ public class TweeningAction implements Action {
         }
     }
 
+
     @Override
-    public void init() {
+    public void startIteration() {
         timePassed = globalTimer.getTotalTimePassed();
     }
+
 }
